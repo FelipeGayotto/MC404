@@ -13,15 +13,19 @@ main:
         li a2, 20  # size (reads 20 bytes)
         li a7, 63 # syscall read (63)
         ecall
+    main1:
     jal str_to_int
     jal sqrt
     jal int_to_str
+    main2:
     jal str_to_int
     jal sqrt
     jal int_to_str
+    main3:
     jal str_to_int
     jal sqrt
     jal int_to_str
+    main4:
     jal str_to_int
     jal sqrt
     jal int_to_str
@@ -58,7 +62,7 @@ sqrt:
     slli a2, a5, 1  # Acha o valor base de k
     li t1, 9        # Começa o contador
     sqrt_loop:      
-        div{u} a3, a5, a2           # a3 = y/k
+        divu a3, a5, a2           # a3 = y/k
         add a3, a3, a2              # a3 = k + y/k
         slli a3, a3, 1              # a3 = (k + y/k)/2
         mv a2, a3                   # k' = a3
@@ -79,7 +83,6 @@ int_to_str:
         remu a2, a2, t1   
         divu t1, t1, t2   # Ajusta os valores para a próxima iteração
         bne t1, t3, loop_int
-    la a1, input_address    # Carrega o endereço do input
     sw a4, 0(a1)            # Altera o primeiro valor do input para sua raiz
     li a4, 32
     sb a4, 0(a1)
