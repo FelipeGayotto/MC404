@@ -98,7 +98,7 @@ main:
         li a2, 2  # size (1 bit + newline)
         li a7, 64 # syscall write (64)
         ecall
-    ret
+    j exit
 
 
 int_to_bin:
@@ -117,7 +117,7 @@ int_to_bin:
         addi t1, t1, -1 # Decrementa do contador
         bgtz t1, bin_loop # Repete até processar todos os bits
     li t1, 10
-    sb t1, 1(a1)
+    sb t1, 0(a1)
     ret
 
 
