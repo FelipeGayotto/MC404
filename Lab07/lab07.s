@@ -52,17 +52,18 @@ main:
     mv s3, a0  # Salva o valor codificado em s3 para uso posterior
     jal decode
     mv s4, a0  # Salva o valor decodificado em s4 para uso posterior
+    mv s5, a1
 
 
     la a1, code_input
     li t0, 3
-    mv a0, s3  # Valor codificado
+    mv a0, s4  # Valor codificado
     jal int_to_bin
 
 
     la a1, decode_input
     li t0, 6
-    mv a0, s4  # Valor decodificado
+    mv a0, s3  # Valor decodificado
     jal int_to_bin
 
 
@@ -71,7 +72,7 @@ main:
     la a1, V_ou_F_output
     sb t1, 0(a1)  # Inicializa com '0' (Igual)
     sb t2, 1(a1)  # Adiciona o caractere de nova linha
-    beq s2, s3, true_case
+    beqz s5, true_case
     li t1, 49
     sb t1, 0(a1)  # Altera para '1' (Diferente)
     true_case:
@@ -181,13 +182,42 @@ decode:
 
     srli t1, t1, 1
 
-
     or a2, t1, t2
     or a2, a2, t3
     or a2, a2, t4          # a2 contem o número d1 d2 d3 d4
 
+    andi t1, s1, 0b1000000
+    andi t2, s1, 0b0010000
+    andi t3, s1, 0b0000100
+    andi t4, s1, 0b0000001
 
-    mv a0, a2               # Retorna o valor decodificado em a0
+    xor a7, t1, t2
+    xor a7, a7, t3
+    xor a7, a7, t4
+
+    andi t1, s1, 0b0100000
+    andi t2, s1, 0b0010000
+    andi t3, s1, 0b0000010
+    andi t4, s1, 0b0000001
+
+    xor a6, t1, t2
+    xor a6, a6, t3
+    xor a6, a6, t4
+
+    andi t1, s1, 0b0001000
+    andi t2, s1, 0b0000100
+    andi t3, s1, 0b0000010
+    andi t4, s1, 0b0000001
+
+    xor a5, t1, t2
+    xor a5, a5, t3
+    xor a5, a5, t4
+
+    or a1, a7, a6
+    or a1, a1, a5
+
+    mv a0, a2
+
     ret
 
 
