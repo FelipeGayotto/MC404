@@ -83,13 +83,13 @@ main:
     write1:
         li a0, 1  # file descriptor = 1 (stdout)
         la a1, decode_input # buffer with the data
-        li a2, 5  # size (4 bits + newline)
+        li a2, 8  # size (4 bits + newline)
         li a7, 64 # syscall write (64)
         ecall
     write2:
         li a0, 1  # file descriptor = 1 (stdout)
         la a1, code_input # buffer with the data
-        li a2, 8  # size (7 bits + newline)
+        li a2, 5  # size (7 bits + newline)
         li a7, 64 # syscall write (64)
         ecall
     write3:
@@ -106,20 +106,18 @@ int_to_bin:
     # a1 contém o endereço do buffer onde a string binária será armazenada
     addi t1, t0, 1    # contador
     mv a2, zero       # Resultado inicial
-    li t2, 1
-    sll t2, t2, t0
-    addi t2, t2, -1
 
     bin_loop:
         srl a3, a0, t0  # Desloca o número para a direita
+        andi a3, a3, 1
         addi a3, a3, 48  # Converte para ASCII ('0' = 48)
         sb a3, 0(a1)     # Armazena o caractere no buffer
         addi a1, a1, 1   # Avança para o próximo
         addi t0, t0, -1  # Decrementa o contador de bits
         addi t1, t1, -1 # Decrementa do contador
-        and a0, a0, t2
-        srli t2, t2, 1   # Usa mask
         bgtz t1, bin_loop # Repete até processar todos os bits
+    li t1, 10
+    sb t1, 1(a1)
     ret
 
 
