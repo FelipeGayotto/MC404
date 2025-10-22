@@ -11,14 +11,14 @@ puts:
     mv t2, zero
     1:
     addi t2, t2, 1
-    li t0, '\0'
+    li t0, 0
     lb t1, 0(a0)
     sub t1, t1, t0
     addi a0, a0, 1
     bnez t1, 1b
 
-    li t0, '\n'
-    sb t0, 0(a0)
+    li t0, 10
+    sb t0, -1(a0)
     addi t2, t2, 1
 
     write:
@@ -34,23 +34,25 @@ gets:
     a0 possui o endereço do buffer para onde a string vai ser copiada
     Essa função lê uma string de STDIN e devolve o endereço do buffer onde ela foi armazenada
     */
-    mv a1, a0
-    read:
-        li a0, 0        # file descriptor = 0 (stdin)
-        # a1 já possui o endereço correto
-        li a2, 100       # size (ISSO DEVE SER ARRUMADO DEPOIS)
-        li a7, 63       # syscall read (63)
-        ecall
-    mv a0, a1
+    mv a6, a0
+    mv a1, a6
+    addi a1, a1, -1
     1:
-        li t0, '\n'
-        lb t1, 0(a0)
-        sub t1, t1, t0
-        addi a0, a0, 1
-        bnez t1, 1b     # Verificar se o caractere é uma quebra de linha
-        li t0, '\0'     
-        sb t0, -1(a0)   # Quando for, troca ele por \0
-    mv a0, a1   
+        addi a1, a1, 1
+        read:
+            li a0, 0        # file descriptor = 0 (stdin)
+            # a1 já possui o endereço correto
+            li a2, 1       # size (ISSO DEVE SER ARRUMADO DEPOIS)
+            li a7, 63       # syscall read (63)
+            ecall
+        li t1, 10
+        lb t2, 0(a1)
+        bne t1, t2, 1b
+
+    li t0, 0     
+    sb t0, 0(a1)   # Quando for, troca ele por \0
+
+    mv a0, a6   
     ret 
 
 atoi:
@@ -58,12 +60,14 @@ atoi:
     a0 contém o endereço do primeiro char da string
     */
     li t4, 0
+    li t6, 0
     1:
         li t0, ' '
         lb t1, 0(a0)
         sub t0, t0, t1
         addi a0, a0, 1
         beqz t0, 1b     # Percorre os whitespaces até o primeiro carcater nonwhite
+    addi a0, a0, -1
     li t0, '+'
     li t1, '-'
     lb t2, 0(a0)
@@ -87,6 +91,9 @@ atoi:
         addi a0, a0, 1      # Ajusta os parâmetros para a próxima interação
         j 2b
     1:
+        beqz t6, 1f
+        sub t4, zero, t4
+    1:    
         mv a0, t4           # Retorna o valor do inteiro em a0
     ret
 
@@ -109,7 +116,7 @@ itoa:
         addi sp, sp, -16    # Guarda espaço na pilha para este caracter
         remu t1, a0, a2     # Checa o valor do útimo dígito do número atual
         addi t1, t1, 48     # Transforma em char
-        li t6, 10
+        li t6, 58
         blt t1, t6, 1f
         addi t1, t1, -10
         addi t1, t1, 49
@@ -127,7 +134,7 @@ itoa:
         addi a1, a1, 1      # Avança no endereço do buffer
         j 1b
     1:
-        li t6, '\0'
+        li t6, 0
         sb t6, 0(a1)
         mv a0, a3           # Retorna o ponteiro pro buffer em a0
     ret
