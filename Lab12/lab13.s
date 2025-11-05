@@ -150,11 +150,16 @@ puts:
     mv t0, zero
 
     write:
-        blt t0, t2, 1f
+        bge t0, t2, 1f
         lb t1, 0(a1)
         sb t1, 0x01(s0)
         li t3, 1
         sb t3, 0x00(s0)
+
+        wait_serial:
+            lb t3, 0x00(s0)
+            bnez t3, wait_serial
+        
         addi a1, a1, 1
         addi t0, t0, 1
         j write
@@ -174,6 +179,10 @@ gets:
         read:
             li t0, 1
             sb t0, 0x02(s0)
+            wait_input:
+                lb t6, 0x02(s0)
+                bnez t6, wait_input
+
             lb t1, 0x03(s0)
             sb t1, 0(a1)
         li t2, 10
